@@ -1,36 +1,48 @@
 import de.bezier.data.sql.*;
+
 boolean loggedIn = false;
 boolean login = false;
 boolean signUp = true;
+
 Input signUpUsernameInput;
-void setup(){
-size(500,500);
-rectMode(CENTER);
-textAlign(CENTER);
-signUpUsernameInput = new Input(width/2,height/2-100,200,50);
+Input signUpPasswordInput;
+
+void setup() {
+  size(500, 500);
+  smooth(8);
+  pixelDensity(2);
+  rectMode(CENTER);
+  textAlign(CENTER);
+  signUpUsernameInput = new Input(width/2, height/2 - 35, 300, 45);
+  signUpPasswordInput = new Input(width/2, height/2 + 35, 300, 45);
 }
 
-void draw(){
+void draw() {
   clear();
   background(200);
- if(login == true){ //Login side
- 
- }
- 
- if(signUp == true){ //Create side
-  signUpUsernameInput.display();
- }
- 
- if(loggedIn == true){ //Allerede logget ind
- 
- }
- 
+  
+  // Login side
+  if (login == true) { 
+  }
+
+  // Create side
+  if (signUp == true) { 
+    signUpUsernameInput.active = true;
+    signUpUsernameInput.display();
+    signUpPasswordInput.display();
+  }
+  
+  // Allerede logget ind
+  if (loggedIn == true) { 
+  }
 }
 
-void mousePressed(){
+void mousePressed() {
   signUpUsernameInput.setActive();
+  signUpPasswordInput.setActive();
 }
 
-void keyPressed(){
+void keyPressed() {
   signUpUsernameInput.input();
+  signUpPasswordInput.input();
 }
