@@ -21,6 +21,7 @@ Button loginBackBtn;
 Button opretSubmitBtn;
 Button signupBtn;
 Button opretBtn;
+Button logoutBtn;
 
 void setup() {
   size(500, 500);
@@ -39,9 +40,6 @@ void setup() {
   signUpUsernameInput = new Input(width/2, height/2 - 35, 300, 45);
   signUpPasswordInput = new Input(width/2, height/2 + 35, 300, 45);
   
-  loginUsernameInput.nextInput = loginPasswordInput;
-  loginPasswordInput.nextInput = loginUsernameInput;
-  
   loginUsernameInput.placeholder = "Brugernavn";
   loginPasswordInput.placeholder = "Adgangskode";
   signUpUsernameInput.placeholder = "Brugernavn*";
@@ -51,6 +49,7 @@ void setup() {
   loginBackBtn = new Button("TILBAGE", width/2, height/2 + 170, 300, 45);
   opretSubmitBtn = new Button("OPRET", width/2, height/2 + 115, 300, 45);
   opretBtn = new Button("OPRET DIG", width/2, height/2 + 170, 300, 45);
+  logoutBtn = new Button("LOG UD", width-75, 40, 100, 45);
 }
 
 void draw() {
@@ -104,6 +103,7 @@ void draw() {
   if (loggedIn == true) {
     loggedinTitle.display();
     
+    logoutBtn.display();
   }
 }
 
@@ -173,13 +173,15 @@ void mousePressed() {
       login = true;
     }
   }
+  
+  if (logoutBtn.clickCheck() == true && loggedIn == true) {
+    // Log bruger ud
+  }
 }
 
 void keyPressed() {
   loginUsernameInput.input();
   loginPasswordInput.input();
-  loginUsernameInput.goNextInput();
-  loginPasswordInput.goNextInput();
   
   signUpUsernameInput.input();
   signUpPasswordInput.input();

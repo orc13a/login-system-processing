@@ -4,7 +4,6 @@ class Input {
   float x, y, w, h;
   boolean active = false;
   boolean showBlinkCursor = true;
-  Input nextInput;
   
   Input(float x_, float y_, float w_, float h_) {  
     x = x_;
@@ -60,18 +59,11 @@ class Input {
   // Når man skriver i input feldtet
   void input() {
     if (active == true) {
-      if (key == BACKSPACE && key != ENTER && value.length() > 0) {
+      if (key == BACKSPACE && key != ENTER && key != TAB && value.length() > 0) {
         value = value.substring(0, value.length() - 1);
       } else if (key != BACKSPACE && key != ENTER && value.length() < 25) {
         value += key;
       }
-    }
-  }
-  
-  void goNextInput() {
-    if (active == true && key == TAB) {
-      active = false;
-      nextInput.active = true;
     }
   }
 }
