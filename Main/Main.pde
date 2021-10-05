@@ -40,6 +40,9 @@ void setup() {
   signUpUsernameInput = new Input(width/2, height/2 - 35, 300, 45);
   signUpPasswordInput = new Input(width/2, height/2 + 35, 300, 45);
   
+  loginPasswordInput.password = true;
+  signUpPasswordInput.password = true;
+  
   loginUsernameInput.placeholder = "Brugernavn";
   loginPasswordInput.placeholder = "Adgangskode";
   signUpUsernameInput.placeholder = "Brugernavn*";

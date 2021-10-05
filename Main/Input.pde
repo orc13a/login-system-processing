@@ -4,6 +4,8 @@ class Input {
   float x, y, w, h;
   boolean active = false;
   boolean showBlinkCursor = true;
+  boolean password = false;
+  String passwordText = "";
   
   Input(float x_, float y_, float w_, float h_) {  
     x = x_;
@@ -21,7 +23,17 @@ class Input {
     
     fill(0);
     textSize(18);
-    text(value, x, y+8);
+    
+    if (password) {
+      passwordText = "";
+      for (int i = 1; i <= value.length(); i++) {
+        passwordText += "•";
+      }
+      
+      text(passwordText, x, y + 8);
+    } else {
+      text(value, x, y + 8);
+    }
 
     // Hvis input er tomt vis placeholder tekst
     if (value.length() == 0) {
