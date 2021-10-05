@@ -1,6 +1,8 @@
 import de.bezier.data.sql.*;
 import java.security.*;
 
+SQLite db;
+
 boolean loggedIn = false;
 boolean login = true;
 boolean signUp = false;
@@ -167,10 +169,39 @@ void mousePressed() {
     if (signUpUsernameInput.value.length() == 0 || signUpPasswordInput.value.length() == 0) {
       formErrorText = "Alle felter skal udfyldes";
       formError = true;
+    } else if (signUpUsernameInput.value.length() == 0) {
+      formErrorText = "Du skal have et brugernavn";
+      formError = true;
     } else if (signUpPasswordInput.value.length() < 6) {
       formErrorText = "Adgangskode skal være minimum 6 tegn lang";
       formError = true;
+    }
+    
+    String findUser = "";
+    
+    try {
+      db = new SQLite(this, "appDB.sqlite");
+      
+      if (db.connect()) {
+        db.query("select userName from users where userName = \"" + signUpUsernameInput.value + "\";");
+        
+        while (db.next()) {
+          findUser = db.getString("userName");
+        }
+      } else {
+        formErrorText = "Database fejl, prøv igen";
+        formError = true;
+      }
+    } catch (Exception e) {
+      println(e);
+    }
+    
+    if (formError == false && findUser.length() > 0) {
+      formErrorText = "Brugernavn allerede brugt";
+      formError = true;
     } else {
+      StringBuffer hashed = new StringBuffer();
+      
       // Hash adgangskode
       try {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -179,20 +210,31 @@ void mousePressed() {
         
         byte[] byteList = md.digest();
         
-        StringBuffer hashed = new StringBuffer();
         for(byte b : byteList) {
           hashed.append(hex(b));
         }
-        
-        println(hashed);
       } catch(Exception e) {
-      
+        println(e);
       }
       
-      // Kald SQL funktion her
-      
-      signUp = false;
-      login = true;
+      // Gem bruger i database
+      try {
+        db = new SQLite(this, "appDB.sqlite");
+        
+        if (db.connect()) {
+          db.query("insert into users values (null, \"" + signUpUsernameInput.value + "\", \"" + hashed.toString() + "\");");
+          
+          db.close();
+          
+          signUp = false;
+          login = true;
+        } else {
+          formErrorText = "Database fejl, prøv igen";
+          formError = true;
+        }
+      } catch (Exception e) {
+        println(e);
+      }
     }
   }
   
