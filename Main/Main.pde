@@ -152,11 +152,13 @@ void mousePressed() {
     if (loginUsernameInput.value.length() == 0 || loginPasswordInput.value.length() == 0) {
       formErrorText = "Alle felter skal udfyldes";
       formError = true;
+    } else if (formError == false && getUser(loginUsernameInput.value) == null) {
+      formErrorText = "Bruger findes ikke";
+      formError = true;
+    } else if (hashPassword(loginPasswordInput.value) != getUser(loginUsernameInput.value).password) {
+      formErrorText = "Adgangskode er forkert";
+      formError = true;
     } else {
-      // Et nyt if til at se om brugeren findes
-      // Et nyt if til at se om adgangskoden passer
-      // Kald SQL funktion her
-      
       login = false;
       loggedIn = true;
     }
@@ -175,54 +177,16 @@ void mousePressed() {
     } else if (signUpPasswordInput.value.length() < 6) {
       formErrorText = "Adgangskode skal være minimum 6 tegn lang";
       formError = true;
-    }
-    
-    String findUser = "";
-    
-    try {
-      db = new SQLite(this, "appDB.sqlite");
-      
-      if (db.connect()) {
-        db.query("select userName from users where userName = \"" + signUpUsernameInput.value + "\";");
-        
-        while (db.next()) {
-          findUser = db.getString("userName");
-        }
-      } else {
-        formErrorText = "Database fejl, prøv igen";
-        formError = true;
-      }
-    } catch (Exception e) {
-      println(e);
-    }
-    
-    if (formError == false && findUser.length() > 0) {
+    } else if (formError == false && findUser() == true) {
       formErrorText = "Brugernavn allerede brugt";
       formError = true;
-    } else {
-      StringBuffer hashed = new StringBuffer();
-      
-      // Hash adgangskode
-      try {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        
-        md.update(signUpPasswordInput.value.getBytes());
-        
-        byte[] byteList = md.digest();
-        
-        for(byte b : byteList) {
-          hashed.append(hex(b));
-        }
-      } catch(Exception e) {
-        println(e);
-      }
-      
+    } else { 
       // Gem bruger i database
       try {
         db = new SQLite(this, "appDB.sqlite");
         
         if (db.connect()) {
-          db.query("insert into users values (null, \"" + signUpUsernameInput.value + "\", \"" + hashed.toString() + "\");");
+          db.query("insert into users values (null, \"" + signUpUsernameInput.value + "\", \"" + hashPassword(signUpPasswordInput.value) + "\");");
           
           db.close();
           
@@ -241,6 +205,81 @@ void mousePressed() {
   if (logoutBtn.clickCheck() == true && loggedIn == true) {
     // Log bruger ud
   }
+}
+
+boolean findUser() {
+  String findUser = "";
+    
+  try {
+    db = new SQLite(this, "appDB.sqlite");
+    
+    if (db.connect()) {
+      db.query("select userName from users where userName = \"" + signUpUsernameInput.value + "\";");
+      
+      while (db.next()) {
+        findUser = db.getString("userName");
+      }
+    } else {
+      formErrorText = "Database fejl, prøv igen";
+      formError = true;
+    }
+    
+    db.close();
+  } catch (Exception e) {
+    println(e);
+  }
+  
+  if (findUser.length() > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+User getUser(String userName_) {
+  User user = null;
+  
+  try {
+    db = new SQLite(this, "appDB.sqlite");
+    
+    if (db.connect()) {
+      db.query("select * from users where userName = \"" + userName_ + "\";");
+      
+      while (db.next()) {
+        user = new User(db.getInt("userID"), db.getString("userName"), db.getString("password"));
+      }
+    } else {
+      formErrorText = "Database fejl, prøv igen";
+      formError = true;
+    }
+    
+    db.close();
+  } catch (Exception e) {
+    println(e);
+  }
+  
+  return user;
+}
+
+String hashPassword(String rawPassword) {
+  StringBuffer hashed = new StringBuffer();
+      
+  // Hash adgangskode
+  try {
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    
+    md.update(rawPassword.getBytes());
+    
+    byte[] byteList = md.digest();
+    
+    for(byte b : byteList) {
+      hashed.append(hex(b));
+    }
+  } catch(Exception e) {
+    println(e);
+  }
+  
+  return hashed.toString();
 }
 
 void keyPressed() {
