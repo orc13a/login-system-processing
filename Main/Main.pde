@@ -10,6 +10,8 @@ boolean formError = false;
 
 String formErrorText = "";
 
+User loggedInUser = null;
+
 Title loginTitle;
 Title signupTitle;
 Title loggedinTitle;
@@ -107,7 +109,14 @@ void draw() {
   
   // Allerede logget ind
   if (loggedIn == true) {
-    loggedinTitle.display();
+    // loggedinTitle.display();
+    
+    line(0, 85, width, 85);
+    
+    fill(0);
+    text(loggedInUser.userName, 60, 50);
+    
+    logoutBtn.show();
     
     logoutBtn.display();
   }
@@ -155,10 +164,15 @@ void mousePressed() {
     } else if (formError == false && getUser(loginUsernameInput.value) == null) {
       formErrorText = "Bruger findes ikke";
       formError = true;
-    } else if (hashPassword(loginPasswordInput.value) != getUser(loginUsernameInput.value).password) {
+    } else if (hashPassword(loginPasswordInput.value).equals(getUser(loginUsernameInput.value).password) == false) {
       formErrorText = "Adgangskode er forkert";
       formError = true;
     } else {
+      loggedInUser = getUser(loginUsernameInput.value);
+      
+      loginUsernameInput.value = "";
+      loginPasswordInput.value = "";
+      
       login = false;
       loggedIn = true;
     }
@@ -190,6 +204,9 @@ void mousePressed() {
           
           db.close();
           
+          signUpUsernameInput.value = "";
+          signUpPasswordInput.value = "";
+          
           signUp = false;
           login = true;
         } else {
@@ -202,8 +219,11 @@ void mousePressed() {
     }
   }
   
+  // LOG UD knap klik
   if (logoutBtn.clickCheck() == true && loggedIn == true) {
-    // Log bruger ud
+    loggedInUser = null;
+    loggedIn = false;
+    login = true;
   }
 }
 
